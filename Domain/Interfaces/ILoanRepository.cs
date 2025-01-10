@@ -1,6 +1,8 @@
+using Domain.Entities;
+
 namespace Domain.Interfaces;
 
-public interface ILoanRepository
+public interface ILoanRepository : IGeneralRepository<Loan>
 {
     
 }

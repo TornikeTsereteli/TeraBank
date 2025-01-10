@@ -1,6 +1,8 @@
+using Domain.Entities;
+
 namespace Domain.Interfaces;
 
-public interface IClientRepository
+public interface IClientRepository : IGeneralRepository<Client>
 {
     
 }

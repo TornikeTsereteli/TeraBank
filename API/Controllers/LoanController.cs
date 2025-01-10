@@ -13,7 +13,8 @@ public class LoanController : ControllerBase
         return Ok();
     }
 
-    public async Task<IActionResult> GetLoanStatus()
+    [HttpGet("status/{id}")]
+    public async Task<IActionResult> GetLoanStatus(int id)
     {
         return Ok("dada");
     } 
