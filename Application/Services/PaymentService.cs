@@ -19,11 +19,11 @@ public class PaymentService : IPaymentService
     public async Task MakePayment(int amount, Guid loanId)
     {
         Loan loan = await _loanRepository.GetByIdAsync(loanId);
-
-        if (await HasThisMonthCovered(loan))
-        {
-            throw new ArgumentException("This Month is AlreadyCovered");
-        }
+        //
+        // if (await HasThisMonthCovered(loan))
+        // {
+        //     throw new ArgumentException("This Month is AlreadyCovered");
+        // }
         Payment payment = new Payment()
         {
             Amount = amount,
