@@ -14,7 +14,7 @@ namespace Infrastructure.Repositories
             _dbContext = applicationDbContext;
         }
         
-        public async Task<Client> GetByIdAsync(int id)
+        public async Task<Client> GetByIdAsync(Guid id)
         {
             return await _dbContext.Clients
                 .FirstOrDefaultAsync(client => client.Id.Equals(id)) ?? throw new InvalidOperationException("no such client exists");
@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var client = await _dbContext.Clients.FindAsync(id);
             if (client != null)

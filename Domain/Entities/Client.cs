@@ -13,6 +13,7 @@ public class Client
     public bool IsEligibleForLoan()
     {
         var age = DateTime.Today.Year - DateOfBirth.Year;
+        Console.WriteLine(age);
         if (DateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;
         return age >= 18; 
     }

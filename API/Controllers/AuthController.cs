@@ -7,6 +7,7 @@ using Infrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -30,7 +31,6 @@ public class AuthController : ControllerBase
     [HttpPost("/register")]
     public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
     {
-        Console.WriteLine(registerDto.Email);
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -176,25 +176,22 @@ public class AuthController : ControllerBase
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
         var userName = User.Identity?.Name;
         bool isEmailConfirmed = false;
-        try
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
 
-        }
-        catch (Exception e)
-        {
-        }
+        var user = await _userManager.Users
+            .Include(u => u.Client)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
         return Ok(new
-        {
-            Id = userId,
-            Email = userEmail,
-            Username = userName,
-            IsVerified = isEmailConfirmed,
-            Message = "Welcome to your page!"
-            
-        });
+            {
+                Id = userId,
+                Email = userEmail,
+                Username = userName,
+                IsVerified = isEmailConfirmed,
+                Message = "Welcome to your page!",
+                Client = user?.Client
+            });
     }
+    
 
     [Authorize(Roles = "Admin")]
     [HttpGet("/admin")]

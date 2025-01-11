@@ -1,3 +1,6 @@
+using Application.DTOs;
+using Domain.Interfaces;
+using Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -6,10 +9,23 @@ namespace API.Controllers;
 [ApiController]
 public class PaymentController : ControllerBase
 {
-    [HttpPost("pay")]
-    public async Task<IActionResult> MakePayment()
+
+    private readonly IPaymentService _paymentService;
+
+    public PaymentController(IPaymentService paymentService)
     {
-        return Ok();
+        _paymentService = paymentService;
+    }
+    
+
+    [HttpPost("pay")]
+    public async Task<IActionResult> MakePayment([FromBody] PaymentDTO paymentDto)
+    {
+
+        int amount = paymentDto.Amount;
+        Guid id = paymentDto.LoanId;
+        await _paymentService.MakePayment(amount, id);
+        return Ok("Successfully Paid");
     }
 
     [HttpGet("history")]
