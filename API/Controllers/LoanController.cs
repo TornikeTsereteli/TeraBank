@@ -33,7 +33,7 @@ public class LoanController : ControllerBase
         Client? client = await GetClient();
         if (client == null)
         {
-            return BadRequest("UnAuthorized");
+            return StatusCode(401, "UnAuthorized");
         }
         if (!client.IsEligibleForLoan())
         {
@@ -42,9 +42,12 @@ public class LoanController : ControllerBase
         Loan loan = new Loan()
         {
             Amount = loanDto.Amount,
+            RemainingAmount = loanDto.Amount,
             InterestRate = loanDto.InterestRate,
             DurationInMonths = loanDto.DurationInMonth,
-            Status = LoanStatus.Approved
+            Status = LoanStatus.Approved,
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now + TimeSpan.FromDays(loanDto.DurationInMonth * 30)
         };
         
         await _loanService.ApplyForLoan(client, loan);
@@ -63,12 +66,20 @@ public class LoanController : ControllerBase
 
         // var status = client?.Loans.FirstOrDefault(l=>l.Id.Equals(id))?.Status;
         var status = client?.Loans.Select(l=>l.Status);
+        var monthlyPayment = _loanService.CalculateConcreteLoanMonthlyPayment(client, client.Loans.First());
+        var loan = client.Loans.First();
+        
         if (status == null)
         {
             return BadRequest("no Such Loan have this client");
         }
         Console.WriteLine(status);
-        return Ok(status);
+        return Ok(new
+        {
+            Status = status,
+            MonthlyPayment = monthlyPayment,
+            Penalty = loan.CalculatePenalty()
+        });
     }
 
 

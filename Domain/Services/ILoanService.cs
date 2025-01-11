@@ -1,3 +1,4 @@
+using System.Collections;
 using Domain.Entities;
 
 
@@ -21,6 +22,6 @@ public interface ILoanService
     public decimal CalculateConcreteLoanTotalPayment(Client client, Loan loan);
 
     public decimal CalculateConcreteLoanPenalty(Client client, Loan loan);
-    
-    
+
+    public Task<IEnumerable<Loan>> GetAllLoans(Client client);
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -8,6 +9,7 @@ namespace Application.Services;
 public class LoanService : ILoanService
 {
     private readonly ILoanRepository _loanRepository;
+    private readonly IClientRepository _clientRepository;
 
     public LoanService(ILoanRepository loanRepository)
     {
@@ -33,6 +35,7 @@ public class LoanService : ILoanService
         }
         
         loan.Client = client;
+        
         await _loanRepository.AddAsync(loan);
         
     }
@@ -53,5 +56,9 @@ public class LoanService : ILoanService
     {
         if (!client.Loans.Contains(loan)) throw new ArgumentException("No such Loan have client");
         return loan.CalculatePenalty();
+    }
+    public async Task<IEnumerable<Loan>> GetAllLoans(Client client)
+    {
+        return client.Loans;
     }
 }

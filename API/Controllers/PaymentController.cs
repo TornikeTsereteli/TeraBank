@@ -18,20 +18,24 @@ public class PaymentController : ControllerBase
     }
     
 
+    // this function does not let you pay more than monthly payment in a month
     [HttpPost("pay")]
     public async Task<IActionResult> MakePayment([FromBody] PaymentDTO paymentDto)
     {
-
-        int amount = paymentDto.Amount;
-        Guid id = paymentDto.LoanId;
+        var amount = paymentDto.Amount;
+        var id = paymentDto.LoanId;
         await _paymentService.MakePayment(amount, id);
         return Ok("Successfully Paid");
-    }
+    }  
+   
+    
+    
+    
 
     [HttpGet("history")]
     public async Task<IActionResult> GetPaymentHistory()
     {
-        return Ok();
+        return null;
     }
     
 }
