@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace Domain.Entities
 {
     public class Loan
@@ -20,6 +22,8 @@ namespace Domain.Entities
 
         public IEnumerable<Payment> Payments { get; set; } = new List<Payment>();
 
+        public IEnumerable<Penalty> Penalties { get; set; } = new List<Penalty>();
+
         public decimal CalculateMonthlyPayment()
         {
             if (RemainingAmount <= 0) throw new InvalidOperationException("Remaining amount must be greater than 0.");
@@ -32,6 +36,7 @@ namespace Domain.Entities
             return RemainingAmount * monthlyRate / (1 - (decimal)Math.Pow(1 + (double)monthlyRate, -remainingMonths));
         }
 
+        
         private int CalculateRemainingMonth()
         {
             var now = DateTime.Now;
@@ -50,44 +55,55 @@ namespace Domain.Entities
 
         public decimal CalculatePenalty()
         {
-            decimal penalty = 0;
-
-            if (Status == LoanStatus.Pending && DateTime.Now > EndDate)
-            {
-                var overdueMonths = (DateTime.Now.Year - EndDate.Year) * 12 + DateTime.Now.Month - EndDate.Month;
-                if (overdueMonths > 0)
-                {
-                    penalty = RemainingAmount * 0.01m * overdueMonths;
-                }
-            }
-
-            return penalty;
+            return Amount * (decimal)0.01;
         }
-
-        public void HandleOverpayment(decimal overpaymentAmount)
+        
+        public bool HavePaidFullyLastMonth()
         {
-            if (overpaymentAmount <= 0) throw new InvalidOperationException("Overpayment amount must be greater than zero.");
+            var now = DateTime.Now;
+            var paymentDay = StartDate.Day;
+            
+            DateTime lastPaymentPeriodStart;
+            DateTime lastPaymentPeriodEnd;
 
-            RemainingAmount -= overpaymentAmount;
-
-            if (RemainingAmount <= 0)
+            if (now.Day < paymentDay)
             {
-                Status = LoanStatus.Completed;
-                RemainingAmount = 0;  // Ensure no negative remaining balance
-            }
-        }
-
-        public void MarkAsCompleted()
-        {
-            if (RemainingAmount <= 0)
-            {
-                Status = LoanStatus.Completed;
+                lastPaymentPeriodEnd = new DateTime(now.Year, now.Month, paymentDay).AddDays(-1);
+                lastPaymentPeriodStart = lastPaymentPeriodEnd.AddMonths(-1).AddDays(1);
             }
             else
             {
-                throw new InvalidOperationException("Loan cannot be marked as completed with remaining balance.");
+                lastPaymentPeriodStart = new DateTime(now.Year, now.Month, paymentDay);
+                lastPaymentPeriodEnd = lastPaymentPeriodStart.AddMonths(1).AddDays(-1);
             }
+
+            decimal expectedPayment = InitialMonthlyPayment();
+
+            decimal paymentsMade = Payments
+                .Where(p => p.PaymentDate >= lastPaymentPeriodStart && p.PaymentDate <= lastPaymentPeriodEnd)
+                .Sum(p => p.Amount);
+
+            bool penaltiesPaid = Penalties.All(p => p.IsPaid);
+
+            return paymentsMade >= expectedPayment && penaltiesPaid;
         }
+        
+        private decimal InitialMonthlyPayment()
+        {
+            if (Amount <= 0) throw new InvalidOperationException("Remaining amount must be greater than 0.");
+
+            var monthlyRate = InterestRate / 100 / 12;
+            int remainingMonths = CalculateRemainingMonth();
+
+            if (remainingMonths <= 0) throw new InvalidOperationException("Remaining months must be greater than 0.");
+
+            return Amount * monthlyRate / (1 - (decimal)Math.Pow(1 + (double)monthlyRate, -remainingMonths));
+        }
+
+        
+        
+
+     
     }
 
     public enum LoanStatus

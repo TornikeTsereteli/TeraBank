@@ -31,6 +31,7 @@ public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
 
     public async Task SendPasswordResetCodeAsync(TUser user, string email, string resetCode)
     {
+        
         await SendEmailAsync(email, "Reset Your Password",
             $"Use the following code to reset your password: {resetCode}");
     }
@@ -60,4 +61,6 @@ public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
 
         await smtpClient.SendMailAsync(mailMessage);
     }
+
+    
 }

@@ -1,58 +1,69 @@
-using System.ComponentModel;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Hosting;
-
-namespace Application.Services;
+using Microsoft.Extensions.Logging;
 
 public class PaymentCheckService : BackgroundService
 {
     private readonly ILoanRepository _loanRepository;
+    private readonly IPenaltyRepository _penaltyRepository;
+    private readonly ILogger<PaymentCheckService> _logger;
 
-    public PaymentCheckService(ILoanRepository loanRepository)
+    public PaymentCheckService(
+        ILoanRepository loanRepository,
+        IPenaltyRepository penaltyRepository,
+        ILogger<PaymentCheckService> logger)
     {
         _loanRepository = loanRepository;
+        _penaltyRepository = penaltyRepository;
+        _logger = logger;
     }
-
 
     private async Task CheckPayments(CancellationToken stoppingToken)
     {
-        var loans =await _loanRepository.GetAllAsync();
-        var todaysDedlineLoans = loans.Where(x => IsPaymentDay(x.StartDate));
-        
-        
-        
-        foreach (var loan in todaysDedlineLoans)
+        _logger.LogInformation("Starting payment checks...");
+
+        var loans = await _loanRepository.GetAllAsync();
+
+        foreach (var loan in loans)
         {
-            if (!HasPaidThisMonth(loan))
+            if (!loan.HavePaidFullyLastMonth())
             {
-                // apply Penalty
-                Console.WriteLine("apply penalty");
+                var penalty = new Penalty
+                {
+                    Amount = loan.CalculatePenalty(),
+                    Reason = "Late payment penalty",
+                    ImposedDate = DateTime.Now,
+                    IsPaid = false,
+                    Loan = loan
+                };
+
+                // email sending logic can be be added
+                
+                await _penaltyRepository.AddAsync(penalty);
             }
         }
-        
-    }
 
-    private bool IsPaymentDay(DateTime startDate)
-    {
-        var today = DateTime.Now;
-
-        return startDate.Day == today.Day && startDate <= today;
-    }
-
-    private bool HasPaidThisMonth(Loan loan)
-    {
-        var now = DateTime.Now;
-        return loan.Payments.Sum(payment => payment.Amount) >= loan.CalculateMonthlyPayment();
+        _logger.LogInformation("Payment checks completed.");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("PaymentCheckService started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
-
-            await CheckPayments(stoppingToken);
+            try
+            {
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                await CheckPayments(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during payment checks.");
+            }
         }
+
+        _logger.LogInformation("PaymentCheckService is stopping.");
     }
 }

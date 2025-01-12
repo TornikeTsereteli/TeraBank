@@ -1,3 +1,4 @@
+using API.Middlewares;
 using Application.Services;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -10,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConsole(); // Add Console logger
+builder.Logging.AddDebug();   // Add Debug logger
+builder.Logging.AddEventLog(); // Optional: Add Event Log (Windows-only)
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -23,9 +27,11 @@ builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPenaltyRepository,PenaltyRepository>();
 
 builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
 
+// builder.Services.AddSingleton<IHostedService,PaymentCheckService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>((options) =>
 {
@@ -51,6 +57,7 @@ using (var scope = app.Services.CreateScope())
     await RoleSeeder.SeedAsync(serviceProvider);
 }
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.MapControllers();
 

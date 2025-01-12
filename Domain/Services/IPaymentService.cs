@@ -5,5 +5,7 @@ namespace Domain.Services;
 public interface IPaymentService
 {
     Task MakePayment(int amount, Guid loadId);
-    Task GetAllPayments(Client client);
+    Task MakePenaltyPayment(int amount, Guid penaltyId);
+
+    Task<IEnumerable<Payment>> GetAllPayments(Client client);
 }
