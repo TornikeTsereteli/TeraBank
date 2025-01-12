@@ -3,6 +3,7 @@ using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Interfaces.Repositories;
 using Infrastructure.Database;
 
 namespace Infrastructure.Repositories

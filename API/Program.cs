@@ -2,10 +2,12 @@ using API.Middlewares;
 using Application.Services;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Interfaces.Repositories;
 using Domain.Services;
 using Infrastructure.Database;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +31,11 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPenaltyRepository,PenaltyRepository>();
 
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+
 builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
+
+builder.Services.AddSingleton<ICreditPointStrategy, CreditPointStrategy>();
 
 // builder.Services.AddSingleton<IHostedService,PaymentCheckService>();
 

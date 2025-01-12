@@ -2,6 +2,7 @@ using Domain.Entities;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Database;
 
@@ -83,7 +84,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         builder.Entity<Loan>(entity =>
         {
             entity.Property(e => e.Status)
-                .HasConversion<string>(); // Store LoanStatus as a string
+                .HasConversion(new EnumToStringConverter<LoanStatus>()); // Store LoanStatus as a string
         });
     }
 

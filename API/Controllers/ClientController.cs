@@ -9,84 +9,99 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Application.DTOs;
 
-namespace API.Controllers;
-
-[Authorize]
-[Route("api/[controller]")]
-[ApiController]
-public class ClientController : ControllerBase
+namespace API.Controllers
 {
-    private readonly IClientService _clientService;
-    private readonly ILogger<ClientController> _logger;
-
-    public ClientController(IClientService clientService, ILogger<ClientController> logger)
+    [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ClientController : ControllerBase
     {
-        _clientService = clientService;
-        _logger = logger;
-    }
+        private readonly IClientService _clientService;
+        private readonly ILoanService _loanService;
+        private readonly ILogger<ClientController> _logger;
 
-    [HttpGet("loan-history")]
-    public async Task<IActionResult> GetClientLoanHistory()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
+        public ClientController(IClientService clientService, ILogger<ClientController> logger, ILoanService loanService)
         {
-            return Unauthorized(new ApiResponse(401, "User is not authenticated."));
+            _clientService = clientService;
+            _logger = logger;
+            _loanService = loanService;
         }
 
-        var client = await _clientService.GetClientByUserIdWithLoansAsync(userId);
-        if (client == null)
+        [HttpGet("loan-history")]
+        public async Task<IActionResult> GetClientLoanHistory()
         {
-            return NotFound(new ApiResponse(404, "Client not found."));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("Unauthorized access attempt - User ID is null or empty");
+                return Unauthorized(new ApiResponse(401, "User is not authenticated."));
+            }
+
+            _logger.LogInformation("Fetching loan history for user ID: {UserId}", userId);
+
+            var client = await _clientService.GetClientByUserIdWithLoansAsync(userId);
+            if (client == null)
+            {
+                _logger.LogWarning("Client not found for user ID: {UserId}", userId);
+                return NotFound(new ApiResponse(404, "Client not found."));
+            }
+
+            if (client.Loans == null || !client.Loans.Any())
+            {
+                _logger.LogInformation("No loan history found for user ID: {UserId}", userId);
+                return Ok(new ApiResponse(200, "No loan history available.", new { loans = Enumerable.Empty<decimal>() }));
+            }
+
+            var loanHistory = client.Loans.Select(x => new
+            {
+                Id = x.Id,
+                Amount = x.Amount,
+                RemainingAmount = x.RemainingAmount,
+                Status = x.Status,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate
+            }).ToList();
+
+            _logger.LogInformation("Successfully retrieved loan history for user ID: {UserId}", userId);
+            return Ok(new ApiResponse(200, "Loan history retrieved successfully.", new { loans = loanHistory }));
         }
 
-        if (client.Loans == null || !client.Loans.Any())
+        [HttpGet("penalty-fees")]
+        public async Task<IActionResult> GetPenaltyFees()
         {
-            return Ok(new ApiResponse(200, "No loan history available.", new { loans = Enumerable.Empty<decimal>() }));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("Unauthorized access attempt - User ID is null or empty");
+                return Unauthorized();
+            }
+
+            _logger.LogInformation("Fetching penalty fees for user ID: {UserId}", userId);
+
+            var client = await _clientService.GetClientByUserIdWithLoansAndPenaltiesAsync(userId);
+            if (client == null)
+            {
+                _logger.LogWarning("Client not found for user ID: {UserId}", userId);
+                return Unauthorized(401);
+            }
+
+            var fees = client.Loans.Select(loan => loan.Penalties).Aggregate(new List<Penalty>(), (acc, penalties) =>
+            {
+                acc.AddRange(penalties);
+                return acc;
+            }).Select(x => new 
+            {
+                x.Id,
+                x.Amount,
+                x.RemainingAmount,
+                x.IsPaid,
+                x.Reason,
+                x.ImposedDate,
+                x.PaidDate
+            });
+
+            _logger.LogInformation("Successfully retrieved penalty fees for user ID: {UserId}", userId);
+            return Ok(new ApiResponse(200, "Your penalty fees are", fees));
         }
-
-        var loanHistory = client.Loans.Select(x => new
-        {
-            Id = x.Id,
-            Amount = x.Amount,
-            RemainingAmount = x.RemainingAmount,
-            Status = x.Status,
-            StartDate = x.StartDate,
-            EndDate = x.EndDate
-        }).ToList();
-
-        return Ok(new ApiResponse(200, "Loan history retrieved successfully.", new { loans = loanHistory }));
-    }
-
-    [HttpGet("penalty-fees")]
-    public async Task<IActionResult> GetPenaltyFees()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-        {
-            return Unauthorized();
-        }
-        var client = await _clientService.GetClientByUserIdWithLoansAndPenalties(userId);
-        if (client == null)
-        {
-            return Unauthorized();
-        }
-        
-        var fees = client.Loans.Select(loan => loan.Penalties).Aggregate(new List<Penalty>(), (acc, penalties) =>
-        {
-            acc.AddRange(penalties);
-            return acc;
-        }).Select(x => new 
-        {
-            x.Id,
-            x.Amount,
-            x.RemainingAmount,
-            x.IsPaid,
-            x.Reason,
-            x.ImposedDate,
-            x.PaidDate
-        });
-
-        return Ok(new ApiResponse(200, "your penalty Fees are", fees));
     }
 }

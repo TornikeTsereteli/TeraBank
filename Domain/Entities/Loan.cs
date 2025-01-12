@@ -5,7 +5,9 @@ namespace Domain.Entities
     public class Loan
     {
         public Guid Id { get; set; }
-
+        
+        public string Name { get; set; }
+        
         public decimal Amount { get; set; }
         public decimal RemainingAmount { get; set; }
 
@@ -58,6 +60,8 @@ namespace Domain.Entities
             return Amount * (decimal)0.01;
         }
         
+        
+        
         public bool HavePaidFullyLastMonth()
         {
             var now = DateTime.Now;
@@ -99,11 +103,6 @@ namespace Domain.Entities
 
             return Amount * monthlyRate / (1 - (decimal)Math.Pow(1 + (double)monthlyRate, -remainingMonths));
         }
-
-        
-        
-
-     
     }
 
     public enum LoanStatus
@@ -112,5 +111,7 @@ namespace Domain.Entities
         Approved,
         Rejected,
         Completed
+        
+        
     }
 }

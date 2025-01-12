@@ -10,7 +10,7 @@ public interface IClientService
    Task<Client?> GetClientByUserIdWithLoansAndPaymentsAsync(string userId);
    Task<Client?> GetClientByUserIdWithLoansAsync(string userId);
 
-   Task<Client?> GetClientByUserIdWithLoansAndPenalties(string userId);
+   Task<Client?> GetClientByUserIdWithLoansAndPenaltiesAsync(string userId);
    Task<Client?> GetClientByUserIdAsync(string userId);
 
 }
