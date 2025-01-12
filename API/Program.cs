@@ -36,6 +36,7 @@ builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
 
 builder.Services.AddSingleton<ICreditPointStrategy, CreditPointStrategy>();
+builder.Services.AddSingleton<ILoanApproveStrategy, LoanApproveStrategy>();
 
 // builder.Services.AddSingleton<IHostedService,PaymentCheckService>();
 

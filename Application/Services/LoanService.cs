@@ -12,6 +12,7 @@ public class LoanService : ILoanService
     private readonly ILoanRepository _loanRepository;
     private readonly IClientRepository _clientRepository;
     private readonly ILogger<LoanService> _logger;
+    private readonly ILoanApproveStrategy _loanApproveStrategy;
 
     public LoanService(ILoanRepository loanRepository, IClientRepository clientRepository, ILogger<LoanService> logger)
     {
@@ -41,7 +42,10 @@ public class LoanService : ILoanService
         }
 
         _logger.LogInformation("Applying for loan for client with ID {ClientId}.", client.Id);
+      
         loan.Client = client;
+        loan.Status = _loanApproveStrategy.isLoanApproved(client, loan) ? LoanStatus.Approved : LoanStatus.Rejected;
+        
         await _loanRepository.AddAsync(loan);
         _logger.LogInformation("Loan applied successfully for client with ID {ClientId}. Loan ID: {LoanId}", client.Id, loan.Id);
     }
