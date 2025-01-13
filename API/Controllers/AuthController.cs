@@ -61,6 +61,7 @@ namespace API.Controllers
                 Client = client
             };
 
+            
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
