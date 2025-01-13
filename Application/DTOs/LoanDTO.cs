@@ -16,7 +16,7 @@ public class LoanDTO
     public decimal Amount { get; set; }
 
     [Required]
-    [Range(0, 50)]
+    [Range(1, 50)]
     [Precision(2)] 
     public decimal InterestRate { get; set; }
 

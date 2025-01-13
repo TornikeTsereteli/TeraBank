@@ -55,7 +55,7 @@ namespace API.Controllers
             };
             AppUser user = new AppUser()
             {
-                UserName = "terra" + registerDto.FirstName,
+                UserName = registerDto.UserName,
                 Email = registerDto.Email,
                 Client = client
             };

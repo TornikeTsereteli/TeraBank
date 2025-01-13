@@ -5,7 +5,7 @@ namespace Application.DTOs;
 public class PaymentDTO
 {
     [Required]
-    [Range(0,100000)]
+    [Range(1,100000)]
     public decimal Amount { get; set; }
     
     [Required]

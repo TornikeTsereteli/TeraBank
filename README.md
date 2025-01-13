@@ -38,35 +38,15 @@ Once a loan is applied, the client can check the status of the loan at any time.
 - **Status**: The loan can be in various stages, such as `Pending`, `Approved`, `Rejected`, or `Closed`. Each status reflects the current state of the loan.
 - **Remaining Amount**: The remaining balance of the loan is tracked and updated after each payment. Initially, this is equal to the loan amount.
 - **Monthly Payment Calculation**: Based on the loan's amount, interest rate, and duration, a monthly payment is calculated. This monthly payment remains constant unless a partial payment or penalty is applied.
-
-#### Monthly Payment Calculation:
-For a loan of $10,000 with an interest rate of 5% over 24 months, the system calculates the monthly payment using a standard loan amortization formula:
-
-\[
-M = P \times \frac{r(1+r)^n}{(1+r)^n-1}
-\]
-
-Where:
-- \( M \) is the monthly payment.
-- \( P \) is the principal loan amount.
-- \( r \) is the monthly interest rate (annual rate divided by 12).
-- \( n \) is the number of payments (loan duration in months).
-
+ 
+- სტანდარტული ფორმულა.
 ---
 
 ### 3. **Penalty Fees**
 
 Penalties are automatically applied if a client fails to make payments on time, or if other loan rules are violated. Each penalty is calculated based on the amount owed and the delay.
 
-- **Imposing Penalties**: When a loan payment is overdue, penalties are calculated as a percentage of the remaining loan amount or based on a fixed penalty amount per overdue month.
-- **Penalty Amounts**: Each penalty fee includes:
-    - The original penalty amount.
-    - The remaining amount due.
-    - The paid status (whether the penalty has been settled).
-    - The reason for the penalty (e.g., "Late Payment").
-
-#### Example:
-If a client misses a payment and the remaining amount of the loan is $5,000, the penalty might be 2% of the remaining loan, resulting in a penalty fee of $100. This penalty is added to the list of penalties for the client and is tracked until it is paid off.
+- **Imposing Penalties**: When a loan payment is overdue, penalties are calculated საწყისი სესხის 1% ყოველდღე
 
 ---
 
@@ -89,16 +69,19 @@ The client can make payments using the following logic:
 
 ---
 
-## API Endpoints
+მოკლედ რომ ვთქვათ, ე.ი. ჯერ რეგისტრაციაა საჭირო, შემდეგ email დაკონფირმება, შემდეგ login,
 
-### 1. **POST /api/loan/apply-for-loan**
+სესხის ლოგიკა მდგომარეობს შემდეგში:
 
-Allows a client to apply for a loan.
+1. სესხს აიღებ თუ კრიტერიუმებს აკმაყოფილებ
+2. თუ სესხის ყოველთვიურ დავალიანება არ გადაიხდი, გეკისრება ჯარიმა გამოტანილი სესხის 1% ყოველდღე, ამას ხელმზღვანელობს backgroundtask
+3. სესხის გადახდისას არხარ ვალდებული ზუსტი თანხა გადაიხადო მთავარია ერთი თვის განმავლობაში დაფარო.
+4. გაქვს უფლება overpayment გააკეთო, მაგ შემთხვევაში დგება სესხის გადახდის ახალი გეგმა შემცირებული რიცხვებით.
+5. დანარჩენი კლიენტს აქვს შესაძლებლობა გადახდები ნახოს, ასე აქვს შესაძლებლობა სესხის სტატუსი შეამოწმომს რაც უჩვენებს რამდენი უკვე თვიური გადასახადი და ამ თვეს რამდენი დარჩა გადახდა.
+6. ჯარიმების გადახდის ლოგიკა ცალკეცაა გადატინილი შენ კლიენტს შეგიძლია როგორც პირდაპირ გადაიხადო მარტო ჯარიმა, ან შეგიძლია გადაიხადო makepayment
+7. კლიენტს ასევე შეუძლია ნახოს ყველა გამოტანილი სესხი.
 
-#### Request Body:
-```json
-{
-  "amount": 10000,
-  "interestRate": 5.5,
-  "durationInMonth": 24
-}
+
+ტესტებიც მთავარ ბიზნესს ლოგიკაზე დაწერილია, ასევე ასე თუ ისე დოკუმენტიაციაც არის ფუნქციების და კომენტარებიც, + ლოგერები.
+
+
