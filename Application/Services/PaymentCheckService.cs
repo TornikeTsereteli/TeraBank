@@ -28,7 +28,7 @@ public class PaymentCheckService : BackgroundService
 
         foreach (var loan in loans)
         {
-            if (!loan.HavePaidFullyLastMonth())
+            if (!loan.HaveLastMonthsFullyPaid())
             {
                 var penalty = new Penalty
                 {

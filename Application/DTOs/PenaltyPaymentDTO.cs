@@ -8,6 +8,7 @@ public class PenaltyPaymentDTO
     public Guid PenaltyID { get; set; }
     
     [Required]
-    public int Amount { get; set; }
+    [Range(0,100000)]
+    public decimal Amount { get; set; }
     
 }

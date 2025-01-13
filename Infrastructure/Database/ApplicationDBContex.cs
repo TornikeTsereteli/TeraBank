@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public DbSet<Loan> Loans { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Penalty> Penalties { get; set; }
+    public DbSet<PaymentSchedule> PaymentSchedules { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -49,7 +50,12 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .HasMany(l => l.Penalties) 
             .WithOne(p => p.Loan)
             .HasForeignKey(p => p.LoanId);
-
+        
+        builder.Entity<Loan>()
+            .HasMany(l => l.PaymentSchedules) 
+            .WithOne(p => p.Loan)
+            .HasForeignKey(p => p.LoanId);
+        
         // Configure Payment
         builder.Entity<Payment>()
             .HasKey(p => p.Id);
@@ -86,6 +92,9 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             entity.Property(e => e.Status)
                 .HasConversion(new EnumToStringConverter<LoanStatus>()); // Store LoanStatus as a string
         });
+
+        builder.Entity<PaymentSchedule>()
+            .HasKey(p => p.Id);
     }
 
 }

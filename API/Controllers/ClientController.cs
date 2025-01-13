@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Application.DTOs;
+using Application.Mappers;
 
 namespace API.Controllers
 {
@@ -52,15 +53,9 @@ namespace API.Controllers
                 return Ok(new ApiResponse(200, "No loan history available.", new { loans = Enumerable.Empty<decimal>() }));
             }
 
-            var loanHistory = client.Loans.Select(x => new
-            {
-                Id = x.Id,
-                Amount = x.Amount,
-                RemainingAmount = x.RemainingAmount,
-                Status = x.Status,
-                StartDate = x.StartDate,
-                EndDate = x.EndDate
-            }).ToList();
+            var loanHistory = client.Loans
+                .Select(Mapper.LoanToLoanResponseDto)
+                .ToList();
 
             _logger.LogInformation("Successfully retrieved loan history for user ID: {UserId}", userId);
             return Ok(new ApiResponse(200, "Loan history retrieved successfully.", new { loans = loanHistory }));
@@ -89,16 +84,7 @@ namespace API.Controllers
             {
                 acc.AddRange(penalties);
                 return acc;
-            }).Select(x => new 
-            {
-                x.Id,
-                x.Amount,
-                x.RemainingAmount,
-                x.IsPaid,
-                x.Reason,
-                x.ImposedDate,
-                x.PaidDate
-            });
+            }).Select(Mapper.PenaltyToPenaltyResponseDto);
 
             _logger.LogInformation("Successfully retrieved penalty fees for user ID: {UserId}", userId);
             return Ok(new ApiResponse(200, "Your penalty fees are", fees));

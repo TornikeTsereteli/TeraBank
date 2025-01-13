@@ -48,5 +48,13 @@ namespace Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public Task<Loan?> GetByIdWithPaymentScheduleAsync(Guid id)
+        {
+            return _context.Loans
+                .Include(loan => loan.PaymentSchedules)
+                .Where(loan => loan.Id == id)
+                .FirstOrDefaultAsync();
+        }
     }
 }

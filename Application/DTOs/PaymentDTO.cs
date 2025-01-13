@@ -5,7 +5,8 @@ namespace Application.DTOs;
 public class PaymentDTO
 {
     [Required]
-    public int Amount { get; set; }
+    [Range(0,100000)]
+    public decimal Amount { get; set; }
     
     [Required]
     public Guid LoanId { get; set; }

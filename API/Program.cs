@@ -13,61 +13,73 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddConsole(); // Add Console logger
-builder.Logging.AddDebug();   // Add Debug logger
-builder.Logging.AddEventLog(); // Optional: Add Event Log (Windows-only)
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add logging
+builder.Logging.AddConsole();  
+builder.Logging.AddDebug();
+builder.Logging.AddEventLog(); 
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-// dependency injection should located somewhere else
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<ILoanRepository, LoanRepository>();
-builder.Services.AddScoped<ILoanService, LoanService>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPenaltyRepository,PenaltyRepository>();
-
-builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
-
-builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
-
-builder.Services.AddSingleton<ICreditPointStrategy, CreditPointStrategy>();
-builder.Services.AddSingleton<ILoanApproveStrategy, LoanApproveStrategy>();
-
-// builder.Services.AddSingleton<IHostedService,PaymentCheckService>();
-
-builder.Services.AddDbContext<ApplicationDbContext>((options) =>
+// Register database context and identity 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")); //sqllite connection gaumartavia jer jerobit
 });
+
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Register repositories
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPenaltyRepository, PenaltyRepository>();
+builder.Services.AddScoped<IPaymentScheduleRepository, PaymentScheduleRepository>();
+
+// Register services
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// Register unit of work, I use it just for Transaction
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// register strategies this classes are just moq classes one o
+builder.Services.AddSingleton<ICreditPointStrategy, CreditPointStrategy>();
+builder.Services.AddSingleton<ILoanApproveStrategy, LoanApproveStrategy>();
+
+// Register email sender service
+builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
+
+// Register background services
+builder.Services.AddTransient<IHostedService, PaymentCheckService>(); // this background task is responsible to check every day in once if someone have unpaid fee, or did not pay last months loan payment => gamowere axali jarima!!!
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Seed roles in the database
 using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
     await RoleSeeder.SeedAsync(serviceProvider);
 }
 
+// Global exception handling middleware
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 app.UseHttpsRedirection();
+
+// Map controllers to endpoints
 app.MapControllers();
 
-
+// Run the application
 app.Run();
-

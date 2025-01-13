@@ -10,7 +10,7 @@ public class Penalty
     public string Reason { get; set; } = null!;
     public DateTime ImposedDate { get; set; }
     public bool IsPaid { get; set; } = false;
-    public DateTime? PaidDate { get; set; }
+    public DateTime PaidDate { get; set; }
   
     public Loan Loan { get; set; }
 }

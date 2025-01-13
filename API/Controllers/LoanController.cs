@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using API.Response;
 using Application.DTOs;
+using Application.Mappers;
 using Domain.Entities;
 using Domain.Helpers;
 using Domain.Services;
@@ -73,14 +74,7 @@ public class LoanController : ControllerBase
 
         _logger.LogInformation("Loan application submitted successfully for client {ClientId}", client.Id);
 
-        return Ok(new LoanResponseDTO
-        {
-            LoanId = loan.Id,
-            Status = loan.Status,
-            MonthlyPayment = loan.CalculateMonthlyPayment(),
-            StartDate = loan.StartDate,
-            EndDate = loan.EndDate
-        });
+        return Ok(Mapper.LoanToLoanResponseDto(loan));
     }
 
     [HttpGet("status/{id:guid}")]
@@ -98,21 +92,7 @@ public class LoanController : ControllerBase
             _logger.LogWarning("User not found for user ID: {UserId}", userId);
             return Unauthorized(new ApiResponse(401, "User not found or unauthorized"));
         }
-
-        var loan = client.Loans.FirstOrDefault(l => l.Id == id);
-        if (loan == null)
-        {
-            return NotFound(new ApiResponse(404, "Loan not found"));
-        }
-
-        var monthlyPayment = _loanService.CalculateConcreteLoanMonthlyPayment(client, loan);
-
-        return Ok(new 
-        {
-            LoanId = loan.Id,
-            Status = loan.Status.ToDisplayString(),
-            MonthlyPayment = monthlyPayment,
-            RemainingAmount = loan.RemainingAmount,
-        });
+        
+        return Ok(await _loanService.GetLoanStatus(client, id));
     }
 }
