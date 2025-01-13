@@ -27,7 +27,7 @@ namespace API.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly ICreditPointStrategy _creditPointStrategy; // credit point strategy, I have written just moq class which returns 600
 
-        public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailSender<AppUser> emailSender, IClientService clientService, ILogger<AuthController> logger, ICreditPointStrategy creditPointStrategy)
+        public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailSender<AppUser> emailSender, IClientService clientService, ILogger<AuthController> logger, ICreditPointStrategy creditPointStrategy, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -35,6 +35,7 @@ namespace API.Controllers
             _clientService = clientService;
             _logger = logger;
             _creditPointStrategy = creditPointStrategy;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost("/register")]
@@ -60,24 +61,39 @@ namespace API.Controllers
                 Client = client
             };
 
-            _logger.LogInformation("Attempting to register user: {Email}", registerDto.Email);
-            await _clientService.AddClientAsync(client);
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if (result.Succeeded)
+            try
             {
-                await _userManager.AddToRoleAsync(user, "User");
+                await _unitOfWork.BeginTransactionAsync();
 
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token }, Request.Scheme);
-                await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
+                _logger.LogInformation("Attempting to register user: {Email}", registerDto.Email);
 
-                _logger.LogInformation("Registration successful for user: {Email}", registerDto.Email);
-                return Ok(new { Message = "Registration successful, please check your email" });
+                await _clientService.AddClientAsync(client);
+                var result = await _userManager.CreateAsync(user, registerDto.Password);
+                
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token },
+                        Request.Scheme);
+                    await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
+
+                    await _unitOfWork.CommitAsync();
+                    _logger.LogInformation("Registration successful for user: {Email}", registerDto.Email);
+                    return Ok(new { Message = "Registration successful, please check your email" });
+                }
+
+                await _unitOfWork.RollbackAsync();
+                _logger.LogError("Registration failed for user: {Email} - Errors: {Errors}", registerDto.Email,
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+                return BadRequest(result.Errors);
             }
-
-            _logger.LogError("Registration failed for user: {Email} - Errors: {Errors}", registerDto.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
-            return BadRequest(result.Errors);
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         [HttpGet("/confirm-email")]

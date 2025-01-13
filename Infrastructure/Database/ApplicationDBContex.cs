@@ -22,6 +22,10 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        builder.Entity<AppUser>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
         // Configure AppUser and Client relationship
         builder.Entity<AppUser>()
