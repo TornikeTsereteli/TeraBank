@@ -12,6 +12,7 @@ public static class Mapper
         {
             LoanId = loan.Id,
             MonthlyPayment = loan.CalculateMonthlyPayment(),
+            CurrentMonthPayment = loan.GetThisMonthPayment(),
             Name = loan.Name,
             RemainingAmount = loan.RemainingAmount,
             StartDate = loan.StartDate,

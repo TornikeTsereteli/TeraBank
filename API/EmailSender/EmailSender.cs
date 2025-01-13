@@ -1,17 +1,16 @@
+namespace API.EmailSender;
+
 using System.Net;
 using System.Net.Mail;
-using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Application.Services;
+
 
 
 // simple email sender class
-public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
+public class EmailSender<TUser> : IEmailSender<TUser> where TUser : IdentityUser
 {
-
     private readonly IConfiguration _configuration;
 
     public EmailSender(IConfiguration configuration)
@@ -33,7 +32,6 @@ public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
 
     public async Task SendPasswordResetCodeAsync(TUser user, string email, string resetCode)
     {
-        
         await SendEmailAsync(email, "Reset Your Password",
             $"Use the following code to reset your password: {resetCode}");
     }
@@ -63,6 +61,4 @@ public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
 
         await smtpClient.SendMailAsync(mailMessage);
     }
-
-    
 }

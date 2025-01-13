@@ -1,38 +1,37 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\API\\API.csproj": {}
+    "C:\\Users\\kk\\RiderProjects\\TeraBank\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\API\\API.csproj": {
+    "C:\\Users\\kk\\RiderProjects\\TeraBank\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\kk\\RiderProjects\\TeraBank\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\API\\API.csproj",
-        "packagesPath": "C:\\Users\\WERO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\API\\obj\\",
+        "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\API\\API.csproj",
+        "packagesPath": "C:\\Users\\kk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\API\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\WERO\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\kk\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\Application.csproj"
+              "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\Application.csproj"
               },
-              "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -41,6 +40,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
         }
       },
       "frameworks": {
@@ -87,6 +91,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -95,39 +117,38 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\kk\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\Application.csproj": {
+    "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\WERO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Application\\obj\\",
+        "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\Application.csproj",
+        "packagesPath": "C:\\Users\\kk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Application\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\WERO\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\kk\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj"
+              "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj"
               },
-              "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -136,6 +157,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
         }
       },
       "frameworks": {
@@ -166,33 +192,46 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\kk\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj": {
+    "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj",
-        "packagesPath": "C:\\Users\\WERO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\obj\\",
+        "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj",
+        "packagesPath": "C:\\Users\\kk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\WERO\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\kk\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -205,6 +244,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
         }
       },
       "frameworks": {
@@ -235,41 +279,54 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\kk\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj": {
+    "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\WERO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\kk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
-          "C:\\Users\\WERO\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\kk\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\WERO\\RiderProjects\\TeraBank_\\Domain\\Domain.csproj"
+              "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\kk\\RiderProjects\\TeraBank\\Domain\\Domain.csproj"
               }
             }
           }
@@ -278,6 +335,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
         }
       },
       "frameworks": {
@@ -304,12 +366,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\kk\\.dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

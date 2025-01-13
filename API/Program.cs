@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using API.EmailSender;
 using API.Middlewares;
 using Application.Services;
 using Domain.Entities;
@@ -26,16 +27,16 @@ builder.Services.AddControllers();
 
 
 
-// var databasePath = Path.Combine(AppContext.BaseDirectory, "..","..", "..", "..", "Infrastructure", "Database", "db.sqlite");
-// var connectionString = $"Data Source={Path.GetFullPath(databasePath)}";
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//     options.UseSqlite(connectionString));
+var databasePath = Path.Combine(AppContext.BaseDirectory, "..","..", "..", "..", "Infrastructure", "Database", "db.sqlite");
+var connectionString = $"Data Source={Path.GetFullPath(databasePath)}";
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(connectionString));
 
 // Register database context and identity 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")); 
-});
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+// {
+//     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")); 
+// });
 
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()

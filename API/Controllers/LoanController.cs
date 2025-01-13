@@ -88,7 +88,9 @@ public class LoanController : ControllerBase
         };
 
         await _loanService.ApplyForLoan(client, loan);
-
+        
+        
+        
         _logger.LogInformation("Loan application submitted successfully for client {ClientId}", client.Id);
 
         return Ok(Mapper.LoanToLoanResponseDto(loan));
