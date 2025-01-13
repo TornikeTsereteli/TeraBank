@@ -12,6 +12,7 @@ using Application.Mappers;
 
 namespace API.Controllers
 {
+    
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
