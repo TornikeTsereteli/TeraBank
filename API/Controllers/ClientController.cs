@@ -28,6 +28,22 @@ namespace API.Controllers
             _loanService = loanService;
         }
 
+        /// <summary>
+        /// Gets The loan history of the current authenticated client.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint fetches the loan history for the client identified by the user ID.
+        /// If the client is not found or has no loan history, appropriate responses are returned.
+        /// </remarks>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing:
+        /// - 200 (OK): If the loan history is successfully retrieved, returns an <see cref="ApiResponse"/> with the loan details.
+        /// - 401 (Unauthorized): If the user is not authenticated.
+        /// - 404 (NotFound): If the client is not found in the system.
+        /// </returns>
+        /// <response code="200">Loan history successfully retrieved, or no loan history available.</response>
+        /// <response code="401">Unauthorized access or user not authenticated.</response>
+        /// <response code="404">Client not found in the system.</response>
         [HttpGet("loan-history")]
         public async Task<IActionResult> GetClientLoanHistory()
         {
@@ -61,6 +77,20 @@ namespace API.Controllers
             return Ok(new ApiResponse(200, "Loan history retrieved successfully.", new { loans = loanHistory }));
         }
 
+        /// <summary>
+        /// Retrieves all penalty fees associated with the current client.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint fetches penalty fees linked to the client's loans. 
+        /// The client is identified using the user ID from the JWT token in the request.
+        /// </remarks>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing:
+        /// - 200 (OK): If the penalty fees are successfully retrieved, returns an <see cref="ApiResponse"/> object containing the list of penalty fees.
+        /// - 401 (Unauthorized): If the user is not authenticated or the client is not found.
+        /// </returns>
+        /// <response code="200">Penalty fees successfully retrieved.</response>
+        /// <response code="401">Unauthorized access or client not found.</response>
         [HttpGet("penalty-fees")]
         public async Task<IActionResult> GetPenaltyFees()
         {

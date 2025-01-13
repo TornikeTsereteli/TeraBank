@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+// Basic Controller Class , Stadart methtod, register, Login, SignOut ...., after user is register he needs email verification, mail is automatically send to him
+
+
 namespace API.Controllers
 {
     [ApiController]
@@ -20,7 +23,7 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailSender<AppUser> _emailSender;
         private readonly IClientService _clientService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork; // maybe can be used ti run something using transaction
         private readonly ILogger<AuthController> _logger;
         private readonly ICreditPointStrategy _creditPointStrategy; // credit point strategy, I have written just moq class which returns 600
 

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Application.Services;
 
+
+// simple email sender class
 public class EmailSender<TUser> : IEmailSender<TUser> where TUser: IdentityUser
 {
 

@@ -27,6 +27,25 @@ public class LoanService : ILoanService
         _unitOfWork = unitOfWork;
     }
 
+    /// <summary>
+    /// Applies for a loan for the specified client, including eligibility checks, loan approval, and transaction management.
+    /// </summary>
+    /// <remarks>
+    /// This method handles the entire process of applying for a loan, including:
+    /// 1. Checking the client's eligibility.
+    /// 2. Determining the loan's status using a loan approval strategy.
+    /// 3. Adding the loan to the database.
+    /// 4. Generating a payment schedule for the loan.
+    /// 5. Saving the payment schedule to the database.
+    /// 6. Ensuring that the operation is atomic by using a transaction that either commits all changes or rolls back in case of failure.
+    /// </remarks>
+    /// <param name="client">The client applying for the loan.</param>
+    /// <param name="loan">The loan being applied for by the client.</param>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the client is not authorized to apply for a loan.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when the provided loan is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the client is not eligible for a loan.</exception>
+    /// <returns>A task representing the asynchronous operation.</returns>
+
     public async Task ApplyForLoan(Client client, Loan loan)
     {
         if (client == null)
@@ -66,12 +85,13 @@ public class LoanService : ILoanService
         catch (Exception e)
         {
             await _unitOfWork.RollbackAsync();
+            _logger.LogError(e.Message);
             throw;
         }
     }
 
     
-
+    // validation of client and loan, and checks if loan belongs to client.Loans
     private void ValidateClientLoanOwnership(Client? client, Loan? loan)
     {
         if (client == null)
@@ -92,7 +112,10 @@ public class LoanService : ILoanService
             throw new ArgumentException("The specified loan does not belong to the client.");
         }
     }
-
+    
+    // firstly loan and user are validated ,
+    // then LoanResponse is returned which contains what is remaining amount of this month, and updated MonthlyPayment if overpayment occurs
+    
     public async Task<Object> GetLoanStatus(Client client, Guid id)
     {
         Loan? loan = await _loanRepository.GetByIdWithPaymentScheduleAsync(id);
@@ -102,7 +125,7 @@ public class LoanService : ILoanService
         return new LoanResponseDTO()
         {
             LoanId = loan.Id,
-            MonthlyPayment = loan.CalculateMonthlyPayment(),
+            MonthlyPayment = loan.GetNextMonthPayment(),
             CurrentMonthPayment = loan.GetThisMonthPayment(),
             RemainingAmount = loan.RemainingAmount,
             Name = loan.Name,

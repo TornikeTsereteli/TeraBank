@@ -1,27 +1,29 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+
+// BackGrounds Service Class Which is responsible to Check every day for every client of somene desrves penalty fee, tu ki gamoweros jarima
 public class PaymentCheckService : BackgroundService
 {
-    private readonly ILoanRepository _loanRepository;
-    private readonly IPenaltyRepository _penaltyRepository;
     private readonly ILogger<PaymentCheckService> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
     public PaymentCheckService(
-        ILoanRepository loanRepository,
-        IPenaltyRepository penaltyRepository,
-        ILogger<PaymentCheckService> logger)
+        ILogger<PaymentCheckService> logger, IServiceProvider serviceProvider)
     {
-        _loanRepository = loanRepository;
-        _penaltyRepository = penaltyRepository;
         _logger = logger;
+        _serviceProvider = serviceProvider;
     }
 
     private async Task CheckPayments(CancellationToken stoppingToken)
     {
+        using var scope = _serviceProvider.CreateScope();
+        var _loanRepository = scope.ServiceProvider.GetRequiredService<ILoanRepository>();
+        var _penaltyRepository = scope.ServiceProvider.GetRequiredService<IPenaltyRepository>();
         _logger.LogInformation("Starting payment checks...");
 
         var loans = await _loanRepository.GetAllAsync();

@@ -31,6 +31,23 @@ public class LoanController : ControllerBase
         _clientService = clientService ?? throw new ArgumentNullException(nameof(clientService));
     }
 
+    /// <summary>
+    /// Allows an authenticated client to apply for a new loan.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint validates the input loan details and checks if the authenticated client is eligible to apply for a loan.
+    /// If all conditions are met, the loan application is submitted and a response is returned containing the details of the created loan.
+    /// </remarks>
+    /// <param name="loanDto">An object containing the details of the loan application, such as name, amount, interest rate, and duration.</param>
+    /// <returns>
+    /// An <see cref="ActionResult"/> containing:
+    /// - 200 (OK): If the loan application is successfully submitted, returns a <see cref="LoanResponseDTO"/> with the loan details.
+    /// - 400 (Bad Request): If the input data is invalid or the client is not eligible for a loan.
+    /// - 401 (Unauthorized): If the user is not authenticated or the client is not found.
+    /// </returns>
+    /// <response code="200">The loan application was successfully submitted.</response>
+    /// <response code="400">The input data is invalid or the client is ineligible for a loan.</response>
+    /// <response code="401">The user is not authenticated or the client does not exist.</response>
     [HttpPost("apply-for-loan")]
     public async Task<ActionResult<LoanResponseDTO>> ApplyForLoan([FromBody] LoanDTO loanDto)
     {
@@ -77,6 +94,22 @@ public class LoanController : ControllerBase
         return Ok(Mapper.LoanToLoanResponseDto(loan));
     }
 
+    /// <summary>
+    /// Retrieves the status of a loan based on the provided loan ID.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint checks if the loan belongs to the client associated with the authenticated user. 
+    /// If the loan exists and is associated with the client, the loan status is returned as a <see cref="LoanStatusDTO"/>.
+    /// Otherwise, an appropriate response is returned.
+    /// </remarks>
+    /// <param name="id">The unique identifier (GUID) of the loan.</param>
+    /// <returns>
+    /// An <see cref="ActionResult"/> containing:
+    /// - 200 (OK): If the loan status is successfully retrieved, returns a <see cref="LoanStatusDTO"/>.
+    /// - 401 (Unauthorized): If the user is not authenticated
+    /// </returns>
+    /// <response code="200">The loan status was successfully retrieved.</response>
+    /// <response code="401">Unauthorized access</response>
     [HttpGet("status/{id:guid}")]
     public async Task<ActionResult<LoanStatusDTO>> GetLoanStatus(Guid id)
     {

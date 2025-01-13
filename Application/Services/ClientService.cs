@@ -22,6 +22,7 @@ public class ClientService : IClientService
         _logger = logger;
     }
 
+    // simple  AddCLIENT METHOD 
     public async Task AddClientAsync(Client client)
     {
         try
@@ -37,6 +38,7 @@ public class ClientService : IClientService
         }
     }
 
+    // different type of joins, this method return the Client with Loans and payments are joined
     public async Task<Client?> GetClientByUserIdWithLoansAndPaymentsAsync(string userId)
     {
         try
@@ -63,6 +65,8 @@ public class ClientService : IClientService
             throw;
         }
     }
+    
+    // this method returns client with loans joined
 
     public async Task<Client?> GetClientByUserIdWithLoansAsync(string userId)
     {
@@ -90,7 +94,7 @@ public class ClientService : IClientService
         }
     }
 
- 
+    // return client with loans and the penalties joined
     public async Task<Client?> GetClientByUserIdWithLoansAndPenaltiesAsync(string userId)
     {
         try
@@ -118,6 +122,7 @@ public class ClientService : IClientService
         }
     }
 
+    // just returns client without joined anything 
     public async Task<Client?> GetClientByUserIdAsync(string userId)
     {
         try

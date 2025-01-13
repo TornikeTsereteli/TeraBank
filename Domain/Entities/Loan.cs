@@ -27,7 +27,22 @@ namespace Domain.Entities
         public IEnumerable<Payment> Payments { get; set; } = new List<Payment>();
 
         public IEnumerable<Penalty> Penalties { get; set; } = new List<Penalty>();
-
+        
+        // public Loan()
+        // {
+        //     if (InterestRate <= 0)
+        //         throw new ArgumentException("Interest rate must be positive");
+        //     if (Amount <= 0)
+        //         throw new ArgumentException("Loan amount must be positive");
+        //     if (StartDate >= EndDate)
+        //         throw new ArgumentException("Start date must be before end date");
+        //     
+        //     if (Status != LoanStatus.Approved)
+        //         throw new InvalidOperationException("Cannot make payment on a non-approved loan");
+        // }
+        
+        private const decimal Tolerance = 0.01m;
+        
         public bool HaveLastMonthsFullyPaid()
         {
             DateTime lastMonthPaymentDateTime = GetLastMonthPaymentDay(StartDate.Day);
@@ -53,102 +68,70 @@ namespace Domain.Entities
             // Console.WriteLine(monthlyPayment);
             return monthlyPayment;
         }
+
+        public decimal GetNextMonthPayment()
+        {
+            if (Status == LoanStatus.Completed)
+            {
+                return 0;
+            }
+            return PaymentSchedules.Where(p => p.PaidAmount == 0).First().Amount;
+        }
+      
         public void MakePayment(decimal amount)
         {
-            RemainingAmount -= amount;
+            if (amount <= 0)
+                throw new ArgumentException("Payment amount must be positive", nameof(amount));
+
+            decimal remainingPayment = amount;
+
+            // 1. First, process all penalties
+            remainingPayment = ProcessPenalties(remainingPayment);
+            if (remainingPayment <= 0) return;
             
-            foreach (var penalty in Penalties.Where(p => !p.IsPaid).OrderBy(p => p.ImposedDate))
+            Console.WriteLine("remaining amount:");
+            Console.WriteLine(remainingPayment);
+            
+            RemainingAmount -= amount;
+            if (RemainingAmount < 0)
             {
-                if (amount <= 0) break;
-
-                decimal remainingPenalty = penalty.RemainingAmount;
-
-                if (amount >= remainingPenalty)
-                {
-                    penalty.RemainingAmount = 0;
-                    penalty.IsPaid = true;
-                    amount -= remainingPenalty;
-                }
-                else
-                {
-                    penalty.RemainingAmount -= amount;
-                    amount = 0;
-                }
+                throw new ArgumentException("amount is bigger than necessary");
             }
 
-            // foreach (var paymentSchedule in PaymentSchedules.Where(p => !p.IsPaid).OrderBy(p => p.PaymentDay))
-            // {
-            //     if (amount <= 0) break;
-            //     Console.WriteLine("Im here");
-            //     
-            //     decimal remainingPayment = paymentSchedule.Amount - paymentSchedule.PaidAmount;
-            //
-            //     if (amount >= remainingPayment)
-            //     {
-            //         Console.WriteLine("Im here");
-            //         paymentSchedule.PaidAmount += remainingPayment;
-            //         paymentSchedule.IsPaid = true;
-            //         amount -= remainingPayment;
-            //     }
-            //     else
-            //     {
-            //         paymentSchedule.PaidAmount += amount;
-            //         amount = 0;
-            //     }
-            // }
-            // Identify the current month payment schedule
-            DateTime today = DateTime.Now;
-            DateTime checkMonth = today.Day < StartDate.Day ? today : today.AddMonths(1);
-            
-            var currentMonthPayment = PaymentSchedules
-                .Where(p => !p.IsPaid && p.PaymentDay.Month == checkMonth.Month && p.PaymentDay.Year == checkMonth.Year)
-                .MinBy(p => p.PaymentDay);
+            // 2. Check if the remaining amount is approximately equal to the payment amount (within tolerance)
+            if (Math.Abs(RemainingAmount) < Tolerance)
+            {
+                Status = LoanStatus.Completed;
+                foreach (var ps in PaymentSchedules)
+                {
+                    ps.PaidAmount = ps.Amount;
+                    ps.IsPaid = true;
+                }
+                return;
+            }
 
+            // 3. Check and process current month's payment
+            var currentMonthPayment = GetCurrentMonthPaymentSchedule();
+            Console.WriteLine($"current monht {currentMonthPayment!=null} dsadda ");
             if (currentMonthPayment != null)
             {
-                // Process only the current month's payment
-                decimal remainingPayment = currentMonthPayment.Amount - currentMonthPayment.PaidAmount;
-
-                if (remainingPayment <= 0)
-                {
-                    // Payment has already been made for this month, skip
-                    Console.WriteLine("Current month payment is already made.");
-                }
-                else
-                {
-                    // Pay the remaining balance for the current month
-                    if (amount >= remainingPayment)
-                    {
-                        currentMonthPayment.PaidAmount += remainingPayment;
-                        currentMonthPayment.IsPaid = true;
-                        amount -= remainingPayment;
-                    }
-                    else
-                    {
-                        currentMonthPayment.PaidAmount += amount;
-                        amount = 0;
-                    }
-                }
+                remainingPayment = ProcessCurrentMonthPayment(currentMonthPayment, remainingPayment);
             }
-            Console.WriteLine(amount);
 
-            if (amount > 0)
+            // 4. If there's still money left, recalculate future payments
+            if (remainingPayment > 0)
             {
-                foreach (var ps in PaymentSchedules.Where(p=>!p.IsPaid))
-                {
-                    ps.Amount = CalculateMonthlyPayment();
-                }
+                RecalculateFuturePayments();
             }
         }
         
         public IEnumerable<PaymentSchedule> GeneratePaymentSchedules()
         {
             var schedules = new List<PaymentSchedule>();
-            var monthlyPayment = InitialMonthlyPayment(); // Assuming this method calculates the fixed monthly payment
+            var monthlyPayment = InitialMonthlyPayment(); 
 
             for (int month = 1; month <= DurationInMonths; month++)
             {
-                Console.WriteLine("monthly payement is " + monthlyPayment);
                 var paymentDate = StartDate.AddMonths(month); 
                 var schedule = new PaymentSchedule
                 {
@@ -160,9 +143,6 @@ namespace Domain.Entities
                 };
 
                 schedules.Add(schedule);
-                
-
-                Console.WriteLine(schedule.Amount);
             }
             PaymentSchedules = schedules;
             return schedules;
@@ -170,19 +150,20 @@ namespace Domain.Entities
 
         public decimal GetThisMonthPayment()
         {
-            DateTime today = DateTime.Now;
-            DateTime checkMonth = today.Day < StartDate.Day ? today : today.AddMonths(1);
-            var currentMonthPayment = PaymentSchedules
-                .Where(p => !p.IsPaid && p.PaymentDay.Month == checkMonth.Month && p.PaymentDay.Year == checkMonth.Year)
-                .MinBy(p => p.PaymentDay);
-
+            var currentMonthPayment = GetCurrentMonthPaymentSchedule();
             if (currentMonthPayment == null)
             {
                 return 0;
             }
 
-            return currentMonthPayment.IsPaid ? 0 : currentMonthPayment.Amount - currentMonthPayment.RemainingAmount;
+            return currentMonthPayment.IsPaid ? 0 : currentMonthPayment.Amount - currentMonthPayment.PaidAmount;
         }
+        
+        public decimal CalculatePenalty()
+        {
+            return Amount * (decimal)0.01;
+        }
+        
         
         private DateTime GetLastMonthPaymentDay(int paymentDay)
         {
@@ -206,61 +187,7 @@ namespace Domain.Entities
 
             return lastMonthPaymentDay;
         }
-
         
-        // private int CalculateRemainingMonth()
-        // {
-        //     var now = DateTime.Now;
-        //     if (now > EndDate) return 0;  // If current date is past the loan end date, return 0
-        //     var months = ((EndDate.Year - now.Year) * 12) + EndDate.Month - now.Month;
-        //     return months;
-        // }
-        //
-        // public decimal CalculateTotalPayment()
-        // {
-        //     var monthlyPayment = CalculateMonthlyPayment();
-        //     int remainingMonths = CalculateRemainingMonth();
-        //
-        //     return monthlyPayment * remainingMonths;
-        // }
-        //
-        public decimal CalculatePenalty()
-        {
-            return Amount * (decimal)0.01;
-        }
-        //
-        //
-        //
-        // public bool HavePaidFullyLastMonth()
-        // {
-        //     var now = DateTime.Now;
-        //     var paymentDay = StartDate.Day;
-        //     
-        //     DateTime lastPaymentPeriodStart;
-        //     DateTime lastPaymentPeriodEnd;
-        //
-        //     if (now.Day < paymentDay)
-        //     {
-        //         lastPaymentPeriodEnd = new DateTime(now.Year, now.Month, paymentDay).AddDays(-1);
-        //         lastPaymentPeriodStart = lastPaymentPeriodEnd.AddMonths(-1).AddDays(1);
-        //     }
-        //     else
-        //     {
-        //         lastPaymentPeriodStart = new DateTime(now.Year, now.Month, paymentDay);
-        //         lastPaymentPeriodEnd = lastPaymentPeriodStart.AddMonths(1).AddDays(-1);
-        //     }
-        //
-        //     decimal expectedPayment = InitialMonthlyPayment();
-        //
-        //     decimal paymentsMade = Payments
-        //         .Where(p => p.PaymentDate >= lastPaymentPeriodStart && p.PaymentDate <= lastPaymentPeriodEnd)
-        //         .Sum(p => p.Amount);
-        //
-        //     bool penaltiesPaid = Penalties.All(p => p.IsPaid);
-        //
-        //     return paymentsMade >= expectedPayment && penaltiesPaid;
-        // }
-        //
         private decimal InitialMonthlyPayment()
         {
             if (Amount <= 0) throw new InvalidOperationException("Remaining amount must be greater than 0.");
@@ -272,6 +199,62 @@ namespace Domain.Entities
         
             return Amount * monthlyRate / (1 - (decimal)Math.Pow(1 + (double)monthlyRate, -DurationInMonths));
         }
+        
+        private decimal ProcessPenalties(decimal amount)
+        {
+            foreach (var penalty in Penalties.Where(p => !p.IsPaid).OrderBy(p => p.ImposedDate))
+            {
+                if (amount <= 0) break;
+
+                decimal penaltyPayment = Math.Min(penalty.RemainingAmount, amount);
+                penalty.RemainingAmount -= penaltyPayment;
+                penalty.IsPaid = penalty.RemainingAmount <= 0;
+                amount -= penaltyPayment;
+            }
+            return amount;
+        }
+        
+        private PaymentSchedule? GetCurrentMonthPaymentSchedule()
+        {
+            DateTime today = DateTime.Now;
+            DateTime checkMonth = today.Day < StartDate.Day ? today : today.AddMonths(1);
+    
+            return PaymentSchedules
+                .Where(p => !p.IsPaid && 
+                            p.PaymentDay.Month == checkMonth.Month && 
+                            p.PaymentDay.Year == checkMonth.Year)
+                .MinBy(p => p.PaymentDay);
+        }
+        private decimal ProcessCurrentMonthPayment(PaymentSchedule currentPayment, decimal amount)
+        {
+            decimal remainingPayment = currentPayment.Amount - currentPayment.PaidAmount;
+
+            if (remainingPayment <= 0)
+            {
+                currentPayment.IsPaid = true;
+                return amount; 
+            }
+
+            if (amount >= remainingPayment)
+            {
+                currentPayment.PaidAmount += remainingPayment;
+                currentPayment.IsPaid = true;
+                return amount - remainingPayment;
+            }
+    
+            currentPayment.PaidAmount += amount;
+            return 0;
+        }
+        
+        private void RecalculateFuturePayments()
+        {
+            decimal newMonthlyAmount = CalculateMonthlyPayment();
+            foreach (var schedule in PaymentSchedules.Where(p => !p.IsPaid))
+            {
+                schedule.Amount = newMonthlyAmount;
+            }
+        }
+        
     }
 
     public enum LoanStatus
@@ -281,4 +264,56 @@ namespace Domain.Entities
         Rejected,
         Completed
     }
+    
+    
+    
+    // private int CalculateRemainingMonth()
+    // {
+    //     var now = DateTime.Now;
+    //     if (now > EndDate) return 0;  // If current date is past the loan end date, return 0
+    //     var months = ((EndDate.Year - now.Year) * 12) + EndDate.Month - now.Month;
+    //     return months;
+    // }
+    //
+    // public decimal CalculateTotalPayment()
+    // {
+    //     var monthlyPayment = CalculateMonthlyPayment();
+    //     int remainingMonths = CalculateRemainingMonth();
+    //
+    //     return monthlyPayment * remainingMonths;
+    // }
+    //
+   
+    //
+    // public bool HavePaidFullyLastMonth()
+    // {
+    //     var now = DateTime.Now;
+    //     var paymentDay = StartDate.Day;
+    //     
+    //     DateTime lastPaymentPeriodStart;
+    //     DateTime lastPaymentPeriodEnd;
+    //
+    //     if (now.Day < paymentDay)
+    //     {
+    //         lastPaymentPeriodEnd = new DateTime(now.Year, now.Month, paymentDay).AddDays(-1);
+    //         lastPaymentPeriodStart = lastPaymentPeriodEnd.AddMonths(-1).AddDays(1);
+    //     }
+    //     else
+    //     {
+    //         lastPaymentPeriodStart = new DateTime(now.Year, now.Month, paymentDay);
+    //         lastPaymentPeriodEnd = lastPaymentPeriodStart.AddMonths(1).AddDays(-1);
+    //     }
+    //
+    //     decimal expectedPayment = InitialMonthlyPayment();
+    //
+    //     decimal paymentsMade = Payments
+    //         .Where(p => p.PaymentDate >= lastPaymentPeriodStart && p.PaymentDate <= lastPaymentPeriodEnd)
+    //         .Sum(p => p.Amount);
+    //
+    //     bool penaltiesPaid = Penalties.All(p => p.IsPaid);
+    //
+    //     return paymentsMade >= expectedPayment && penaltiesPaid;
+    // }
+    //
+
 }

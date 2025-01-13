@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using API.Middlewares;
 using Application.Services;
 using Domain.Entities;
@@ -23,10 +24,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+
+
+// var databasePath = Path.Combine(AppContext.BaseDirectory, "..","..", "..", "..", "Infrastructure", "Database", "db.sqlite");
+// var connectionString = $"Data Source={Path.GetFullPath(databasePath)}";
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//     options.UseSqlite(connectionString));
+
 // Register database context and identity 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")); //sqllite connection gaumartavia jer jerobit
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")); 
 });
 
 builder.Services.AddIdentity<AppUser, IdentityRole>()
@@ -51,12 +59,13 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // register strategies this classes are just moq classes one o
 builder.Services.AddSingleton<ICreditPointStrategy, CreditPointStrategy>();
 builder.Services.AddSingleton<ILoanApproveStrategy, LoanApproveStrategy>();
+builder.Services.AddScoped<IMoneySentBackStrategy, MoneySentBackStrategy>();
 
 // Register email sender service
 builder.Services.AddScoped<IEmailSender<AppUser>, EmailSender<AppUser>>();
 
 // Register background services
-builder.Services.AddTransient<IHostedService, PaymentCheckService>(); // this background task is responsible to check every day in once if someone have unpaid fee, or did not pay last months loan payment => gamowere axali jarima!!!
+builder.Services.AddSingleton<IHostedService, PaymentCheckService>(); // this background task is responsible to check every day in once if someone have unpaid fee, or did not pay last months loan payment => gamowere axali jarima!!!
 
 var app = builder.Build();
 
